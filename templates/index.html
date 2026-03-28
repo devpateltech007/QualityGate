@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Review Bot | Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Outfit:wght@300;400;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="pulse"></span>
+                <h1>Quality <span>Gate</span></h1>
+            </div>
+            <div class="status-badge" id="bot-status">SYSTEM OPERATIONAL</div>
+        </header>
+
+        <main>
+            <section class="stats-grid">
+                <div class="card glass">
+                    <h3>Total PRs</h3>
+                    <p id="total-prs">0</p>
+                </div>
+                <div class="card glass">
+                    <h3>AI Confidence</h3>
+                    <p id="avg-ai-score">0%</p>
+                </div>
+                <div class="card glass">
+                    <h3>Blocked PRs</h3>
+                    <p id="blocked-count">0</p>
+                </div>
+            </section>
+
+            <section class="recent-activity glass">
+                <h2>Recent Activity</h2>
+                <div class="activity-list" id="activity-list">
+                    <p class="empty-state">No activity yet...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        async function blockPR(repo, pr, installationId) {
+            const reason = prompt("Enter reason for blocking this PR:", "Manual review required");
+            if (!reason) return;
+
+            try {
+                const res = await fetch('/api/block', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ repo, pr, installation_id: installationId, reason })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert("PR Blocked successfully!");
+                    updateStats();
+                } else {
+                    alert("Failed to block PR.");
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function updateStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+
+                document.getElementById('total-prs').innerText = data.total;
+                document.getElementById('avg-ai-score').innerText = data.flagged_percent + '%';
+                document.getElementById('blocked-count').innerText = data.blocked_count;
+
+                const list = document.getElementById('activity-list');
+                if (data.recent && data.recent.length > 0) {
+                    list.innerHTML = data.recent.map(r => `
+                        <div class="activity-card glass">
+                            <div class="activity-main">
+                                <span class="pr-id">#${r.pr}</span>
+                                <span class="status ${r.status}">${r.status.toUpperCase()}</span>
+                                <span class="score">AI: ${r.ai_score}%</span>
+                                <span class="time">${new Date(r.timestamp).toLocaleTimeString()}</span>
+                                ${r.status !== 'blocked' ? `
+                                    <button class="btn-block" onclick="blockPR('${r.repo || 'owner/repo'}', ${r.pr}, ${r.installation_id || 0})">BLOCK</button>
+                                ` : ''}
+                            </div>
+                            <div class="smells">
+                                ${r.issues && r.issues.length > 0 ?
+                            r.issues.slice(0, 3).map(i => `<span class="smell-tag">${i.split(':')[1] || i}</span>`).join('')
+                            : '<span class="no-smells">No critical smells detected</span>'}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<p class="empty-state">No activity yet...</p>';
+                }
+            } catch (e) {
+                console.error("Failed to fetch stats", e);
+            }
+        }
+
+        setInterval(updateStats, 5000);
+        updateStats();
+    </script>
+</body>
+
+</html>
