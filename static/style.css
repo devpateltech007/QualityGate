@@ -129,16 +129,23 @@ header {
 .activity-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
-.activity-item {
-    display: grid;
-    grid-template-columns: 80px 100px 150px 1fr;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
+.activity-card {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
     animation: slideIn 0.5s ease;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.activity-main {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 @keyframes slideIn {
@@ -146,12 +153,61 @@ header {
     to { opacity: 1; transform: translateX(0); }
 }
 
-.pr-id { font-weight: 600; color: var(--accent-blue); }
-.status { text-transform: uppercase; font-size: 0.7rem; font-weight: 700; }
-.status.blocked { color: var(--accent-red); }
-.status.passed { color: var(--accent-green); }
-.score { color: var(--text-secondary); }
-.time { text-align: right; color: var(--text-secondary); font-size: 0.8rem; }
+.pr-id { font-weight: 700; color: var(--accent-blue); font-family: 'Orbitron', sans-serif; font-size: 1.1rem; }
+.status { 
+    text-transform: uppercase; 
+    font-size: 0.7rem; 
+    font-weight: 800; 
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+}
+.status.blocked { color: var(--accent-red); border: 1px solid var(--accent-red); }
+.status.passed { color: var(--accent-green); border: 1px solid var(--accent-green); }
+
+.score { color: var(--text-primary); font-weight: 600; }
+.time { margin-left: auto; color: var(--text-secondary); font-size: 0.85rem; }
+
+.btn-block {
+    background: var(--accent-red);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-block:hover {
+    opacity: 0.8;
+}
+
+.smells {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.smell-tag {
+    background: rgba(248, 81, 73, 0.1);
+    color: var(--accent-red);
+    border: 1px solid rgba(248, 81, 73, 0.2);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.no-smells {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-style: italic;
+}
 
 .empty-state {
     text-align: center;

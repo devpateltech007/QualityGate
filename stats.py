@@ -2,11 +2,12 @@ from datetime import datetime
 
 _records = []
 
-def record(pr_number, status, ai_score):
+def record(pr_number, status, ai_score, review_issues=None):
     _records.append({
         'pr': pr_number,
         'status': status,
         'ai_score': ai_score,
+        'issues': review_issues or [],
         'timestamp': datetime.utcnow().isoformat()
     })
 
